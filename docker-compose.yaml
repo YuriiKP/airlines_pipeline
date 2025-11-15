@@ -97,6 +97,9 @@ services:
     environment:
       CLICKHOUSE_USER: click
       CLICKHOUSE_PASSWORD: click
+    volumes:
+      - ./docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+
 
   postgres:
     image: postgres:16
