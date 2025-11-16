@@ -81,7 +81,6 @@
 
 - **Airflow Web UI**: http://localhost:8080
 - **MinIO UI**: http://localhost:9000 (логин: `minioadmin`, пароль: `minioadmin`)
-- **ClickHouse HTTP**: http://localhost:8123
 
 **Остановка проекта:**
 ```bash
