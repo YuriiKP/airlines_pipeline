@@ -31,8 +31,8 @@ args = {
 
 
 @dag(
-    dag_id='from_api_to_csv',
-    tags=["example"],
+    dag_id='flights_and_telemetry',
+    tags=["flights"],
     default_args=args,
 )
 def from_api():
@@ -137,20 +137,6 @@ def from_api():
 
         client.insert_df(main_table, df)
         logging.info(f"Данные загружены в таблицу {main_table}")
-        
-        # # Чтобы реализовать идемпотентную загрузку создадим временую таблицу 
-        # # потом после вставки заменим партицию в основной таблице за день загрузки (партиционирование у нас настроено по дням)
-        # client.command(f"DROP TABLE IF EXISTS {staging_table}")
-        # client.command(f"CREATE TABLE {staging_table} LIKE {main_table}")
-        
-        # client.insert_df(staging_table, df)
-        # logging.info(f"Данные ({len(df)} строк) загружены во временную таблицу {staging_table}")
-        
-        # client.command(
-        #     f"ALTER TABLE {main_table} REPLACE PARTITION '{{ ds }}' FROM {staging_table}"
-        # )
-        # logging.info(f"Партиция '{{ ds }}' в {main_table} заменена.")
-
 
 
     @task()
