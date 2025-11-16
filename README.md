@@ -49,22 +49,13 @@
    AIRFLOW_UID=50000
    ```
 
-3. **Установите переменные Airflow** через веб-интерфейс:
-   - `ACCESS_KEY` — ключ доступа для MinIO (по умолчанию: `minioadmin`)
-   - `SECRET_KEY` — секретный ключ для MinIO (по умолчанию: `minioadmin`)
-
-4. **Настройте Telegram connection** (опционально):
-   - В Airflow UI: Admin → Connections
-   - Создайте connection с `conn_id='telegram_conn'`
-   - Укажите токен бота и chat_id
-
-5. **Запустите проект**:
+3. **Запустите проект**:
    ```bash
    docker-compose up -d
    ```
    Дождитесь инициализации(может занять несколько минут)
 
-6. **Откройте MinIo Ui**
+4. **Откройте MinIo Ui**
    - URL: http://localhost:9000 
    - Логин: `minioadmin`
    - Пароль: `minioadmin`
@@ -72,18 +63,18 @@
    Создайте бакет `prod`
    Создайте `Access Key` и `Secret Key`
 
-
-7. **Откройте Airflow UI**:
+5. **Откройте Airflow UI**:
    - URL: http://localhost:8080
    - Логин: `airflow` (или значение из `.env`)
    - Пароль: `airflow` (или значение из `.env`)
 
-   Добавьте Variable для доступа к S3 `ACCESS_KEY` `SECRET_KEY`
-   Добавьте Connection для Телеграма. 
+   Добавьте Variable для доступа к S3 `ACCESS_KEY` и `SECRET_KEY`
+
+   Добавьте Connection для Телеграма: Admin → Connections. 
       - Host: Ваш id в Телеграм или id группы
       - Password: Токен Телеграм бота
 
-8. **Запускаем DAG** `flights_and_telemetry` в веб-интерфейсе Airflow
+6. **Запускаем DAG** `flights_and_telemetry` в веб-интерфейсе Airflow
 
 **Доступ к сервисам:**
 
