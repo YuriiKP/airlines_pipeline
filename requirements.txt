@@ -1,0 +1,4 @@
+Faker==37.12.0
+pandas==2.3.3 
+clickhouse-connect==0.10.0 
+duckdb==1.4.2
