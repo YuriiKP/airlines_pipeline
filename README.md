@@ -61,6 +61,7 @@
    - Пароль: `minioadmin`
    
      Создайте бакет `prod`
+
      Создайте `Access Key` и `Secret Key`
 
 6. **Откройте Airflow UI**:
