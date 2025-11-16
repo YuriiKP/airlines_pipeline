@@ -60,10 +60,10 @@
    - Логин: `minioadmin`
    - Пароль: `minioadmin`
    
-   Создайте бакет `prod`
-   Создайте `Access Key` и `Secret Key`
+   - Создайте бакет `prod`
+   - Создайте `Access Key` и `Secret Key`
 
-5. **Откройте Airflow UI**:
+6. **Откройте Airflow UI**:
    - URL: http://localhost:8080
    - Логин: `airflow` (или значение из `.env`)
    - Пароль: `airflow` (или значение из `.env`)
@@ -74,12 +74,12 @@
       - Host: Ваш id в Телеграм или id группы
       - Password: Токен Телеграм бота
 
-6. **Запускаем DAG** `flights_and_telemetry` в веб-интерфейсе Airflow
+7. **Запускаем DAG** `flights_and_telemetry` в веб-интерфейсе Airflow
 
 **Доступ к сервисам:**
 
 - **Airflow Web UI**: http://localhost:8080
-- **MinIO UI**: http://localhost:900 (логин: `minioadmin`, пароль: `minioadmin`)
+- **MinIO UI**: http://localhost:9000 (логин: `minioadmin`, пароль: `minioadmin`)
 - **ClickHouse HTTP**: http://localhost:8123
 
 **Остановка проекта:**
