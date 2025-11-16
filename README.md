@@ -3,7 +3,9 @@
 ## Описание
 
 1, 2, 3 задание я реализовал в `./docker-entrypoint-initdb.d\initdb.sql`
+
 4 задание можно найти в `./code\from_api_to_csv.py`
+
 5 задание это dag airflow
 
 
