@@ -1,11 +1,9 @@
 import random
 import json
-import time
-import logging
 
 import pendulum
+
 from faker import Faker
-import pandas as pd
 
 
 
@@ -14,19 +12,16 @@ AIRCRAFTS = ['A320-001', 'A321-002', 'B737-003', 'A324-005']
 AIRPORTS = ['SVO', 'LED', 'VKO', 'DME', 'AER', 'OVB']
 
 
-
-class SimulatedNetworkError(Exception):
-    """Исключение для имитации сбоя сети."""
-    pass
-
-
-def get_flights_from_api(n:int = 100):
+def get_flights_from_api(n:int = 100, **context):
     '''
     Метод генерирует ответ из внешнего API со списом всех рейсов за один день
 
     Логики полета борта "туда обратно" нет. здесь может быть вариант, когда
     один и тотже самолет находится в воздухе. Но исходя из условия задачи это не столь важно.
     '''
+    
+    start_date = context['data_interval_start']
+    print(f'Время запуска {start_date}')
     
     faker = Faker()
 
@@ -38,7 +33,7 @@ def get_flights_from_api(n:int = 100):
 
         flight_duration = pendulum.duration(minutes=random.randint(60, 180))
 
-        scheduled_departure = faker.date_time_between('-1day', pendulum.now())
+        scheduled_departure = faker.date_time_between(start_date - pendulum.duration(days=1), start_date)
         actual_departure = scheduled_departure + pendulum.duration(minutes=random.randint(-20, 20))
 
         scheduled_arrival = scheduled_departure + flight_duration
@@ -61,35 +56,44 @@ def get_flights_from_api(n:int = 100):
     return json.dumps(flights)
 
 
-def api_data_to_csv():
+def get_telemetry_from_api(n:int = 10000, **context):
     '''
-    Сохраняет данные в формате в csv полученные из имитации api в дирректорию './data/*.csv', за определенные день
-    '''
-    retry = 3
-    retry_delay = 5
-    json_data = None
+    Метод генерирует ответ из внешнего API с телеметрией самолетов
     
-    for i in range(retry):
-        try: 
-            json_data = get_flights_from_api()
-            break
-        except SimulatedNetworkError:
-            if i + 1 < retry:
-                logging.info(f'Ошибка сети, ожидание {retry_delay} секунд перед повтором') 
-                time.sleep(retry_delay)
-
-    if json_data is None: 
-        logging.warning('Не удалось получить данные из API после всех попыток')
-        return
-
-    df = pd.DataFrame(json.loads(json_data))
-
-    df['load_timestamp'] = pendulum.now().isoformat(sep=' ', timespec='minutes')
-    path = f'./flights_from_api_{pendulum.now().date()}.csv'
-    df.to_csv(path)
-    logging.info(f'Данные сохранены по пути {path}')
-
-
-
-if __name__ == "__main__":
-    api_data_to_csv()
+    Генерирует телеметрические данные от датчиков самолетов в формате JSON
+    '''
+    
+    start_date = context['data_interval_start']
+    print(f'Время запуска {start_date}')
+    
+    faker = Faker()
+    
+    # Параметры телеметрии
+    TELEMETRY_PARAMETERS = {
+        'engine_temperature': (200.0, 450.0),  
+        'altitude': (0.0, 12000.0),  
+        'speed': (0.0, 900.0),
+    }
+    
+    telemetry_records = []
+    
+    for _ in range(n):
+        flight_id = random.choice(FLIGHTS)
+        aircraft_id = random.choice(AIRCRAFTS)
+        parameter = random.choice(list(TELEMETRY_PARAMETERS.keys()))
+        min_val, max_val = TELEMETRY_PARAMETERS[parameter]
+        value = round(random.uniform(min_val, max_val), 2)
+        
+        timestamp = faker.date_time_between(start_date - pendulum.duration(days=1), start_date)
+        
+        telemetry_record = {
+            'aircraft_id': aircraft_id,
+            'flight_id': flight_id,
+            'timestamp': timestamp.isoformat(sep=' ', timespec='seconds'),
+            'parameter': parameter,
+            'value': value
+        }
+        
+        telemetry_records.append(telemetry_record)
+    
+    return json.dumps(telemetry_records)

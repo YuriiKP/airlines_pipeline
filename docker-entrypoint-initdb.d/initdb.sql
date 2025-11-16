@@ -4,29 +4,38 @@ CREATE DATABASE IF NOT EXISTS airlines_db;
 
 CREATE OR REPLACE TABLE airlines_db.flights
 (
-    flight_id UInt64,
+    flight_id FixedString(6),
     aircraft_id FixedString(8),
     departure_airport FixedString(3),
     arrival_airport FixedString(3),
     scheduled_departure DateTime(),
     actual_departure DateTime(),
     scheduled_arrival DateTime(),
-    actual_arrival DateTime()
+    actual_arrival DateTime(),
+    load_timestamp DateTime()
 )
 ENGINE = MergeTree
-ORDER BY flight_id;
+ORDER BY flight_id
+PARTITION BY  toYYYYMM(load_timestamp);
 
 
-CREATE OR REPLACE TABLE airlines_db.telemetry
-(
-    flight_id UInt64,
-    timestamp DateTime(),
-    altitude UInt16,
-    speed UInt16,
-)
-ENGINE = MergeTree
-ORDER BY flight_id;
-
+-- Задание 1 
+-- Чтобы убедиться в правильности данных в данном случае, можно было бы сократить 
+-- выборку до нескольких рейсов и проверить правильность расчетов вручную.
+-- Также проверить адекватность результата, например если средняя задержка слишком большая, или вообще нулевая.
+CREATE VIEW airlines_db.v_flights AS
+SELECT
+    aircraft_id,
+    avg(actual_departure - scheduled_departure) AS avg_departure_delay,
+    avg(actual_arrival - scheduled_arrival) AS avg_arrival_delay,
+    avg((actual_departure - scheduled_departure) > 900) * 100 AS delayed_over_15_min
+FROM
+    airlines_db.flights
+WHERE
+    actual_departure > 0 
+    AND actual_arrival > 0
+GROUP BY
+    aircraft_id;
 
 
 -- Задание 3
@@ -45,7 +54,34 @@ CREATE OR REPLACE TABLE airlines_db.telemetry
 ENGINE = MergeTree 
 ORDER BY (flight_id, aircraft_id) 
 PARTITION BY  toYYYYMMDD(timestamp) 
-TTL timestamp + INTERVAL 1 YEAR; 
+TTL timestamp + INTERVAL 1 YEAR;
 
 
--- INSERT INTO airlines_db.test (id) VALUES (1);
+
+-- Задание 2 
+CREATE VIEW airlines_db.v_telemetry AS
+SELECT
+    flight_id,
+    MAX(
+        CASE 
+            WHEN parameter = 'altitude' THEN value 
+            ELSE NULL 
+        END
+    ) AS max_altitude_m,
+    AVG(
+        CASE 
+            WHEN parameter = 'speed' THEN value 
+            ELSE NULL 
+        END
+    ) AS avg_speed_kmh,
+    MIN(
+        CASE 
+            WHEN parameter = 'altitude' AND value > 1000 THEN timestamp 
+            ELSE NULL 
+        END
+    ) AS first_1000m
+
+FROM
+    airlines_db.telemetry
+GROUP BY
+    flight_id;
