@@ -11,6 +11,7 @@ import pandas as pd
 from airflow.sdk import dag, task
 from airflow.exceptions import AirflowException
 from airflow.models import Variable
+from airflow.providers.telegram.operators.telegram import TelegramOperator
 
 from extensions.generate_data import get_flights_from_api, get_telemetry_from_api
 
@@ -260,12 +261,20 @@ def from_api():
         )
         logging.info(f"Партиция '{start_date}' в {main_table} заменена.")
 
-    
+
     
     flights_path = flights_from_api_to_s3()
-    load_flights_to_ch(flights_path)
+    load_flights_task = load_flights_to_ch(flights_path)
     telemetry_path = telemetry_from_api_to_s3()
-    load_telemetry_to_ch(telemetry_path)
+    load_telemetry_task = load_telemetry_to_ch(telemetry_path)
+    
+    telegram_notification = TelegramOperator(
+            task_id='telegram_notification',
+            telegram_conn_id='telegram_conn',
+            text='Загрузка полетов и телеметрии завершена'
+        )
+    
 
+    [load_flights_task, load_telemetry_task] >> telegram_notification
 
 from_api()
