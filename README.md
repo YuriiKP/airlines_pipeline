@@ -60,8 +60,8 @@
    - Логин: `minioadmin`
    - Пароль: `minioadmin`
    
-   - Создайте бакет `prod`
-   - Создайте `Access Key` и `Secret Key`
+     Создайте бакет `prod`
+     Создайте `Access Key` и `Secret Key`
 
 6. **Откройте Airflow UI**:
    - URL: http://localhost:8080
